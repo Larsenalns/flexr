@@ -1,0 +1,49 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+
+android {
+    namespace 'com.irisvision.flexrfxmodule'
+    compileSdk 35
+
+    defaultConfig {
+        //applicationId "com.irisvision.flexrfxmodule"
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        // Règles R8 transmises aux applications qui consomment cette bibliothèque.
+        consumerProguardFiles 'consumer-rules.pro'
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}
+
+dependencies {
+
+    // api : ce module est consommé en "api" par le noyau (FlexFragment expose les
+    // scopes d'animation) ; ses dépendances doivent se propager aux applications.
+    api libs.appcompat
+    api libs.material
+
+    // FlexThreadMain : depuis le lot 13, le démarrage des animations et les opérations sur le
+    // Choreographer repassent sur le thread principal (ObjectAnimator.start() l'exige).
+    // Aucun cycle : FlexRConcurrency ne dépend d'aucun module.
+    implementation(project(":FlexRConcurrency"))
+
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+}

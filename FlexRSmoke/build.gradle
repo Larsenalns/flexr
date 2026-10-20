@@ -1,0 +1,32 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+
+android {
+    namespace 'com.irisvision.flexrsmoke'
+    compileSdk 35
+
+    defaultConfig {
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}
+
+dependencies {
+    // Ce module RASSEMBLE la librairie pour l'exécuter — il ne fait pas partie d'elle.
+    // Il n'est déclaré dans aucune configuration de publication, et sa présence ne change pas un octet
+    // des AAR publiées : 23 classes des lots 11 et 12 n'avaient jamais été instanciées, faute d'un
+    // endroit où le faire. C'est cet endroit.
+    implementation(project(":FlexRCore"))
+    implementation(project(":FlexRTheme"))
+    implementation(project(":FlexRConcurrency"))
+    implementation(project(":FlexRFX"))
+    implementation(project(":FlexRStarter"))
+    implementation(project(":FlexRMedia"))
+}

@@ -1,0 +1,59 @@
+plugins {
+    alias(libs.plugins.android.application)
+}
+
+android {
+    namespace 'com.irisvision.kazihub'
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.irisvision.kazihub"
+        minSdk 24
+        targetSdk 36
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            // Remis à false après la validation R8 du 2026-10-14 (REVIEW/15-R8-REFLEXION.md).
+            // Cette validation a prouvé que R8 PASSE avec la minification activée et que les setters
+            // d'animation (résolus par réflexion) sont bien conservés grâce à la règle de
+            // FlexRFX/consumer-rules.pro. Activer la minification est donc désormais un choix
+            // éclairé — à faire avec un test sur appareil, pas en aveugle.
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}
+
+dependencies {
+    implementation libs.appcompat
+    implementation libs.material
+
+    implementation(project(":FlexRCore"))
+    implementation(project(":FlexRTheme"))
+    implementation(project(":FlexRConcurrency"))
+    implementation(project(":FlexRFX"))
+    implementation(project(":FlexRStarter"))
+    implementation(project(":FlexRMedia"))
+
+    // Module d'écran de fumée (validation sur appareil) : consommé par l'application de démonstration
+    // uniquement. Il n'est jamais publié, et les AAR de la librairie ne dépendent pas de lui.
+    implementation(project(":FlexRSmoke"))
+
+    testImplementation libs.junit
+
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+}

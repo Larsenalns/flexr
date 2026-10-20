@@ -1,0 +1,32 @@
+# Gradle and Android build output
+.gradle/
+build/
+**/build/
+/captures
+/captures/
+
+# Local configuration that must never be shared
+local.properties
+keystore.properties
+
+# Signing material: a private key or a keystore in a repository is a leak
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.asc
+*.gpg
+
+# Android Studio
+.idea/
+*.iml
+.externalNativeBuild/
+.cxx/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Reports and logs
+reports/
+*.log

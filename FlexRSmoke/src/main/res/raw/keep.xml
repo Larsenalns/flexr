@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Conservation des ressources désignées PAR LEUR NOM — exemple vivant.
+
+  FlexR adresse les ressources par leur nom (FlexImg.load("mon_image"), flexDrawable("mon_icone"),
+  flexAsset(In.raw, "ma_video")), et c'est une promesse de la librairie : elle permet des applications
+  dynamiques, pilotées par la donnée, là où l'identifiant numérique de R impose des références figées.
+
+  Contrepartie : l'outil de réduction des ressources d'AGP (shrinkResources true) ne voit pas ces noms,
+  puisqu'ils arrivent en PARAMÈTRE. Il peut donc supprimer une ressource pourtant utilisée.
+
+  Vérifié expérimentalement le 2026-10-15 (REVIEW/15-R8-REFLEXION.md §5) :
+      sans ce fichier :  drawable:smoke_probe:2131231030 is not reachable.          → supprimée
+      avec ce fichier :  drawable:smoke_probe:2131231030 reachable from keep xml file → conservée
+
+  DEUX FAÇONS DE FAIRE, à choisir côté application :
+
+    1. Nommer ses ressources (le plus économique) — ce que fait ce fichier :
+           tools:keep="@drawable/mon_image,@drawable/mon_icone,@raw/ma_video"
+
+    2. Garder d'un coup tout ce que l'API par nom peut adresser (les deux types de l'énumération In) :
+           tools:keep="@drawable/*,@raw/*"
+       Coût mesuré sur l'application de démonstration : ≈ 0,9 Mo (2,78 Mo → 3,67 Mo).
+
+  Sans ce fichier, FlexR ne reste pas silencieux : flexAsset(...) lève une exception qui nomme la
+  ressource manquante et rappelle cette parade.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/smoke_probe" />

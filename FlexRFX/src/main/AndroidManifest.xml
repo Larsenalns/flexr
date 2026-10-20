@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  FlexR is a library: it declares no Activity, no Service and no application-level attribute. Whatever
+  the application needs is merged from the consumer's own manifest.
+
+  This file is deliberately empty of components. The <application> block the Android Studio library
+  template generates (commented out, as it was here) would only reference resources the library does not
+  ship — a trap for whoever uncomments it one day.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" />

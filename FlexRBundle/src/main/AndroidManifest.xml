@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Manifeste minimal : ce module n'a ni activité, ni composant, ni ressource. Il n'existe que pour
+  déclarer des dépendances (voir build.gradle).
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" />

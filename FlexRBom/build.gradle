@@ -1,0 +1,86 @@
+plugins {
+    // Plateforme de versions : aucun code, seulement des contraintes. Plugin du coeur de Gradle, donc
+    // disponible hors ligne.
+    id 'java-platform'
+    id 'maven-publish'
+}
+
+/*
+ * BOM FlexR — « facture des versions ».
+ *
+ * CE QU'ELLE FAIT : un consommateur ecrit une seule ligne
+ *
+ *     implementation(platform("com.irisvision:flexr-bom:1.0.0"))
+ *     implementation("com.irisvision:flexr-core")            // sans version
+ *     implementation("com.irisvision:flexr-media")           // sans version
+ *
+ * et Gradle choisit la version alignee pour chaque artefact. Une montee de version se fait alors en
+ * changeant UNE ligne chez le consommateur, au lieu de sept — et il devient impossible de melanger
+ * flexr-core 1.2 avec flexr-fx 1.0, combinaison que rien ne teste.
+ *
+ * CE QU'ELLE NE FAIT PAS : elle n'embarque aucun code, ne tire aucune dependance a l'execution, et
+ * n'impose rien a qui n'utilise pas la plateforme. Un consommateur qui declare ses versions lui-meme
+ * n'est pas concerne.
+ *
+ * POURQUOI DES COORDONNEES ET NON DES PROJETS : une contrainte de plateforme porte sur ce qui sera
+ * publie. En developpement local, un consommateur utilise project(":FlexRCore") et n'a pas besoin de la
+ * BOM ; celle-ci prend son sens au moment de la publication, quand les sept artefacts existent sous
+ * leurs coordonnees Maven. Les deux modes cohabitent sans conflit.
+ *
+ * VERSION : lue dans gradle.properties (flexrVersion), pour qu'une montee de version soit une seule
+ * edition. La BOM ne contient aucune classe : sa version suit exactement celle de la bibliotheque.
+ */
+group = providers.gradleProperty('flexrGroup').getOrElse('com.irisvision')
+version = providers.gradleProperty('flexrVersion').getOrElse('1.0.0')
+
+javaPlatform {
+    // allowDependencies() autorise une plateforme a declarer aussi des dependances, pas seulement des
+    // contraintes ; on le garde pour pouvoir, plus tard, aligner une famille d'artefacts tiers.
+    allowDependencies()
+}
+
+dependencies {
+    constraints {
+        api "com.irisvision:flexr-core:${version}"
+        api "com.irisvision:flexr-fx:${version}"
+        api "com.irisvision:flexr-theme:${version}"
+        api "com.irisvision:flexr-concurrency:${version}"
+        api "com.irisvision:flexr-media:${version}"
+        api "com.irisvision:flexr-starter:${version}"
+        api "com.irisvision:flexr-bundle:${version}"
+    }
+}
+
+publishing {
+    publications {
+        bom(MavenPublication) {
+            from components.javaPlatform
+            pom {
+                name = 'FlexR BOM'
+                description = 'Version alignment for the FlexR Android library artifacts.'
+                // TODO: remplacer par l'URL reelle du depot — Central la valide.
+                url = 'https://github.com/irisvision/flexr'
+                licenses {
+                    license {
+                        name = 'Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'irisvision'
+                        name = 'IrisVision'
+                        // TODO: adresse de contact — Central l'exige dans le POM.
+                        email = 'dev@irisvision.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/irisvision/flexr.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/irisvision/flexr.git'
+                    url = 'https://github.com/irisvision/flexr'
+                }
+            }
+        }
+    }
+}

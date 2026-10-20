@@ -1,0 +1,15 @@
+# Normalise line endings in the repository: LF on disk (one rule for every tool), except Windows
+# scripts and binary files. The working tree may show CRLF (Git converts on checkout) without the
+# repository ever containing mixed endings again.
+* text=auto eol=lf
+
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+*.ps1   text eol=lf
+
+*.jar   binary
+*.aar   binary
+*.png   binary
+*.jpg   binary
+*.webp  binary
+*.keystore binary

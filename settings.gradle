@@ -1,0 +1,45 @@
+pluginManagement {
+    repositories {
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "Kazihub"
+include ':app'
+include ':FlexRFX'
+include ':FlexRConcurrency'
+include ':FlexRTheme'
+include ':FlexRCore'
+include ':FlexRStarter'
+include ':FlexRMedia'
+
+// Module d'écran de fumée : il dépend des autres et n'est JAMAIS publié. C'est lui qui exécute la
+// librairie sur un appareil (voir REVIEW/15-R8-REFLEXION.md §8) : aucun octet des AAR publiées
+// n'en dépend, et le retirer de cette liste suffit à le sortir du projet.
+include ':FlexRSmoke'
+
+// Artefact agrégateur « FlexR + Media » : aucun code, seulement des dépendances déclarées, pour offrir
+// un point d'entrée unique aux consommateurs (voir FlexRBundle/build.gradle).
+include ':FlexRBundle'
+
+// BOM : plateforme de versions, sans code. Elle n'aligne que des coordonnées publiées, jamais des
+// projets : un consommateur écrit implementation(platform("com.irisvision:flexr-bom:1.0.0")).
+include ':FlexRBom'

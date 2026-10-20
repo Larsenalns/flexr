@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Témoin de l'API « ressource désignée par son nom ».
+
+  Cette ressource n'est référencée QUE par son nom, depuis SmokeContainersBody
+  (FlexImg.load("smoke_probe")). Elle sert à vérifier expérimentalement l'effet de
+  shrinkResources : l'analyseur d'AGP ne peut pas voir ce nom, puisqu'il arrive en paramètre.
+  Voir REVIEW/15-R8-REFLEXION.md §5.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FF00B208" />
+    <corners android:radius="8dp" />
+</shape>

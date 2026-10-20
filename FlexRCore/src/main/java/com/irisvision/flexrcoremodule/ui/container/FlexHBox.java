@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 IrisVision
+
+package com.irisvision.flexrcoremodule.ui.container;
+
+import androidx.appcompat.widget.LinearLayoutCompat;
+
+import com.irisvision.flexrcoremodule.core.FlexContextInterface;
+import com.irisvision.flexrcoremodule.core.FlexViewBridge;
+import com.irisvision.flexrcoremodule.core.LineBridge;
+
+public class FlexHBox extends LineImpl{
+    //Soft LinearLayout Horizontal Orientation Impl
+    private LinearLayoutCompat linearLayoutCompat;
+
+    public FlexHBox(FlexContextInterface flexContext) {
+        super(flexContext);
+        this.linearLayoutCompat = new LinearLayoutCompat(f.getFlexContext());
+        this.linearLayoutCompat.setOrientation(LinearLayoutCompat.HORIZONTAL);
+        initInnerBridge();
+
+    }
+
+    @Override
+    public final boolean contentWrapper(FlexViewBridge flexViewBridge) {
+        return content(flexViewBridge, this.linearLayoutCompat);
+    }
+
+    @Override
+    public final boolean lineWrapper(LineBridge lineBridge) {
+        return content(lineBridge, this.linearLayoutCompat);
+    }
+}

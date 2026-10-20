@@ -1,0 +1,46 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+
+android {
+    namespace 'com.irisvision.flexrbundle'
+    compileSdk 35
+
+    defaultConfig {
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}
+
+/*
+ * ARTEFACT AGRÉGATEUR — « FlexR + Media ».
+ *
+ * Ce module ne contient AUCUN code : il ne fait que DÉCLARER les dépendances, pour offrir un point
+ * d'entrée unique. Un consommateur écrit alors une seule ligne :
+ *
+ *     implementation("com.irisvision:flexrbundle:1.0")      // à la publication Maven
+ *
+ * et obtient le noyau (qui tire déjà FX, thème et concurrence en `api`) plus le module média.
+ *
+ * POURQUOI `api` ET NON `implementation` : dans un AAR publié, seules les dépendances `api`
+ * apparaissent dans le POM et sont donc transmises au consommateur. En `implementation`, le POM
+ * resterait vide et le point d'entrée ne servirait à rien.
+ *
+ * CE QU'IL NE FAIT PAS :
+ *   - il n'embarque pas media3 dans son propre AAR : il le DÉCLARE, comme n'importe quelle dépendance ;
+ *   - il n'alourdit pas le noyau : `FlexRCore` ne dépend toujours PAS du module média. Un
+ *     consommateur qui n'affiche pas de vidéo peut dépendre du noyau seul, et obtenir un APK sans
+ *     ExoPlayer ;
+ *   - il ne dispense pas de R8 : c'est R8 qui retire le code média non utilisé (mesuré : voir
+ *     REVIEW/15-R8-REFLEXION.md §6.1 et §7).
+ */
+dependencies {
+    api(project(":FlexRCore"))
+    api(project(":FlexRMedia"))
+}

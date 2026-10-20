@@ -1,0 +1,70 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+
+android {
+    namespace 'com.irisvision.flexrcoremodule'
+    compileSdk 35
+
+    defaultConfig {
+        //applicationId "com.irisvision.flexrcoremodule"
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        // Règles R8 transmises aux applications qui consomment cette bibliothèque.
+        consumerProguardFiles 'consumer-rules.pro'
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+
+    testOptions {
+        unitTests {
+            // Les classes Android (Gravity, Color, TypedValue...) sont utilisées par les
+            // conversions de valeurs. Sans ceci, tout appel aux stubs lève une RuntimeException.
+            // Les tests restent volontairement sans dépendance externe : ils couvrent les
+            // fonctions pures de conversion (chaîne vers entier), qui ne nécessitent ni écran ni
+            // environnement Android.
+            returnDefaultValues = true
+        }
+    }
+}
+
+dependencies {
+
+    // api : ces types apparaissent dans l'API publique de FlexR
+    // (FlexActivity extends AppCompatActivity, FlexFragment extends Fragment,
+    //  FlexBottomSheet/FlexDatePicker dérivent de composants Material...).
+    // En "implementation", un projet consommateur ne pouvait pas compiler.
+    api libs.appcompat
+    api libs.material
+
+    // RecyclerView épinglé (2026-10-14) : material:1.12.0 déclare recyclerview:1.0.0, une version de
+    // 2018 qui prive la librairie de getBindingAdapterPosition(), de ListAdapter/AsyncListDiffer et
+    // de ConcatAdapter. 1.3.0 est la version stable disponible dans le cache local (aucune
+    // dépendance réseau ajoutée). Le code de FlexR reste compatible avec les deux versions.
+    api libs.recyclerview
+
+    api(project(':FlexRTheme'))
+    api(project(":FlexRConcurrency"))
+    api(project(":FlexRFX"))
+
+    // media3 / ExoPlayer a été déplacé dans le module FlexRMedia : le noyau ne tire plus
+    // aucun artefact ExoPlayer, et un projet qui n'affiche pas de vidéo ne les ajoute plus à son APK.
+
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+}

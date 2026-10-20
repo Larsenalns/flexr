@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      L'écran de fumée s'installe comme une seconde icône de lancement : c'est volontaire, il s'agit
+      d'un module de validation (voir REVIEW/15-R8-REFLEXION.md §8), jamais publié. Le lancer EN
+      RELEASE MINIFIÉ est le geste qui valide réellement les règles R8 de la librairie.
+    -->
+    <application>
+
+        <activity
+            android:name=".SmokeActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="true"
+            android:label="FlexR Smoke">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <!-- Les deux autres écrans de fumée : ils sont atteints depuis l'écran « conteneurs ». -->
+        <activity
+            android:name=".list.SmokeListActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false" />
+
+        <activity
+            android:name=".fxtheme.SmokeFxThemeActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false" />
+    </application>
+
+</manifest>
