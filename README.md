@@ -43,8 +43,8 @@ Once published:
 
 ```gradle
 dependencies {
-    implementation("com.irisvision:flexr-core:1.0.0")   // + FX, theme and concurrency
-    implementation("com.irisvision:flexr-media:1.0.0")  // optional, brings media3
+    implementation("io.github.larsenalns:flexr-core:1.0.0")   // + FX, theme and concurrency
+    implementation("io.github.larsenalns:flexr-media:1.0.0")  // optional, brings media3
 }
 ```
 
@@ -52,9 +52,9 @@ or, with the version aligned for you:
 
 ```gradle
 dependencies {
-    implementation(platform("com.irisvision:flexr-bom:1.0.0"))
-    implementation("com.irisvision:flexr-core")
-    implementation("com.irisvision:flexr-media")
+    implementation(platform("io.github.larsenalns:flexr-bom:1.0.0"))
+    implementation("io.github.larsenalns:flexr-core")
+    implementation("io.github.larsenalns:flexr-media")
 }
 ```
 
