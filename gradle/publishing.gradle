@@ -1,0 +1,139 @@
+/*
+ * Publication des artefacts FlexR — script commun aux sept modules publies.
+ *
+ * Pourquoi un script et non sept blocs dupliques : le POM, la signature et les archives sources doivent
+ * etre identiques partout. Une correction ici vaut pour tous les artefacts, et une divergence devient
+ * impossible.
+ *
+ * COMMENT IL EST APPLIQUE : chaque module publie termine son build.gradle par
+ *
+ *     apply from: rootProject.file('gradle/publishing.gradle')
+ *
+ * CE QUE L'ON PEUT FAIRE SANS COMPTE : ./gradlew publishToMavenLocal ecrit dans ~/.m2, ce qui permet de
+ * verifier le POM, les archives et les signatures avant tout envoi. La publication distante
+ * (Maven Central) s'ajoute plus tard, avec les identifiants.
+ *
+ * VALEURS LUES DANS gradle.properties (jamais ecrites en dur ici) :
+ *   flexrGroup            groupId, par defaut un espace de noms d'exemple
+ *   flexrVersion          version publiee
+ *   flexrScmUrl           URL du depot, utilisee par <url> et <scm>
+ *   flexrDeveloperEmail   contact du POM
+ *   signingKey / signingPassword   cle PGP (absente : on publie sans signature, pour un build local)
+ */
+
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+def flexrGroup = providers.gradleProperty('flexrGroup').getOrElse('io.github.example')
+def flexrVersion = providers.gradleProperty('flexrVersion').getOrElse('1.0.0')
+def scmUrl = providers.gradleProperty('flexrScmUrl').getOrElse('https://github.com/example/flexr')
+def developerEmail = providers.gradleProperty('flexrDeveloperEmail').getOrElse('dev@example.com')
+
+group = flexrGroup
+version = flexrVersion
+
+/*
+ * Le nom Maven n'est pas le nom Gradle : les modules s'appellent FlexRCore, FlexRFX... alors que les
+ * artefacts publies suivent la convention Maven (minuscules, tirets). La table rend la correspondance
+ * explicite, plutot qu'une transformation de chaine qui casserait sur "FlexRFX".
+ */
+def artifactNames = [
+        'FlexRCore'       : 'flexr-core',
+        'FlexRFX'         : 'flexr-fx',
+        'FlexRTheme'      : 'flexr-theme',
+        'FlexRConcurrency': 'flexr-concurrency',
+        'FlexRMedia'      : 'flexr-media',
+        'FlexRStarter'    : 'flexr-starter',
+        'FlexRBundle'     : 'flexr-bundle'
+]
+
+def artifactName = artifactNames[project.name]
+if (artifactName == null) {
+    throw new GradleException("gradle/publishing.gradle : aucun nom d'artefact pour le module " + project.name)
+}
+
+android {
+    publishing {
+        singleVariant('release') {
+            // Le -sources.jar est exige par Maven Central, et il contient la javadoc du code.
+            withSourcesJar()
+        }
+    }
+}
+
+/*
+ * Maven Central exige un -javadoc.jar par artefact. La tache javadoc d'AGP n'existe pas pour une
+ * bibliotheque Android (elle demanderait le R genere et android.jar sur le classpath), et la vraie
+ * documentation vit dans les sources. On publie donc une archive courte qui pointe vers elle, plutot
+ * qu'une archive vide ou une duplication fragile.
+ */
+tasks.register('javadocJar', Jar) {
+    archiveClassifier = 'javadoc'
+    from rootProject.file('gradle/javadoc-placeholder')
+}
+
+/*
+ * Depot de preparation : la publication ecrit un depot Maven complet dans build/central-bundle. Le ZIP
+ * de ce dossier est exactement ce que le portail Central attend, et il se verifie hors ligne (POM,
+ * sources, javadoc, signatures) avant tout envoi. Aucun identifiant n'est necessaire pour cette etape.
+ */
+if (!publishing.repositories.findByName('centralBundle')) {
+    publishing {
+        repositories {
+            maven {
+                name = 'centralBundle'
+                url = rootProject.layout.buildDirectory.dir('central-bundle')
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                artifactId = artifactName
+                artifact tasks.named('javadocJar')
+
+                pom {
+                    name = 'FlexR ' + project.name.replace('FlexR', '')
+                    description = 'Declarative UI for Android: screens built in Java, indexed theme, no XML.'
+                    url = scmUrl
+                    licenses {
+                        license {
+                            name = 'Apache License, Version 2.0'
+                            url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution = 'repo'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'irisvision'
+                            name = 'IrisVision'
+                            email = developerEmail
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:' + scmUrl + '.git'
+                        developerConnection = 'scm:git:ssh://git@github.com/' + (scmUrl - 'https://github.com/') + '.git'
+                        url = scmUrl
+                    }
+                }
+            }
+        }
+    }
+}
+
+/*
+ * Signature : seulement si une cle est disponible. Un developpeur qui clone le projet et lance un build
+ * ne doit pas echouer faute de cle ; la CI et la release, elles, la fournissent toujours.
+ */
+signing {
+    def signingKey = providers.gradleProperty('signingKey').getOrNull()
+    def signingPassword = providers.gradleProperty('signingPassword').getOrElse('')
+    if (signingKey) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign publishing.publications
+    }
+}

@@ -43,3 +43,6 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 }
+
+// Publication Maven (POM, sources, javadoc, signature) : voir gradle/publishing.gradle.
+apply from: rootProject.file('gradle/publishing.gradle')

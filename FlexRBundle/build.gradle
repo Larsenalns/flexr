@@ -44,3 +44,6 @@ dependencies {
     api(project(":FlexRCore"))
     api(project(":FlexRMedia"))
 }
+
+// Publication Maven (POM, sources, javadoc, signature) : voir gradle/publishing.gradle.
+apply from: rootProject.file('gradle/publishing.gradle')

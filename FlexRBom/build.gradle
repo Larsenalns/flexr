@@ -3,6 +3,7 @@ plugins {
     // disponible hors ligne.
     id 'java-platform'
     id 'maven-publish'
+    id 'signing'
 }
 
 /*
@@ -52,9 +53,23 @@ dependencies {
 }
 
 publishing {
+    /*
+     * Preparation du bundle Central : la publication ecrit un depot Maven complet dans
+     * build/central-bundle. Le ZIP de ce dossier est ce que le portail Central accepte, ce qui permet
+     * de verifier le contenu hors ligne avant tout envoi.
+     */
+    repositories {
+        maven {
+            name = 'centralBundle'
+            url = rootProject.layout.buildDirectory.dir('central-bundle')
+        }
+    }
     publications {
         bom(MavenPublication) {
             from components.javaPlatform
+            // Le nom Maven ne suit pas le nom du module Gradle (FlexRBom) : Central attend
+            // des minuscules a tirets, et c'est cette coordonnee que les consommateurs ecrivent.
+            artifactId = 'flexr-bom'
             pom {
                 name = 'FlexR BOM'
                 description = 'Version alignment for the FlexR Android library artifacts.'
@@ -82,5 +97,19 @@ publishing {
                 }
             }
         }
+    }
+}
+
+/*
+ * Signature du POM de la BOM. Maven Central exige une signature par artefact, y compris pour une
+ * plateforme de versions : sans elle, le bundle est refuse. Meme regle que pour les modules — on ne
+ * signe que si une cle est disponible, pour qu'un build local reste possible sans cle.
+ */
+signing {
+    def signingKey = providers.gradleProperty('signingKey').getOrNull()
+    def signingPassword = providers.gradleProperty('signingPassword').getOrElse('')
+    if (signingKey) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign publishing.publications
     }
 }
